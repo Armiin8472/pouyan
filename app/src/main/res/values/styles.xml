@@ -4,7 +4,7 @@
         <item name="android:statusBarColor">#12141A</item>
         <item name="android:navigationBarColor">#12141A</item>
         <item name="android:textColor">#EEEEEE</item>
-        <item name="android:windowBackground">#12141A</item>
+        <item name="android:windowBackground">#f6f1ee</item>
     </style>
 
     <style name="Chip">
