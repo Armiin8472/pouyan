@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>پلنر عادت‌ها</title>
+<style>
+:root{--bg:#f6f1ee;--card:#fffdfb;--ink:#3a3330;--mute:#8d817b;--line:#e6dcd6;--pink:#e8a0a8;--green:#6fb283;--box:#fff;--w1:#fbeeee;--w2:#fdf6f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1918;--card:#2a2423;--ink:#f1e9e5;--mute:#a69a94;--line:#3c3432;--pink:#d98a95;--green:#7cc593;--box:#241f1e;--w1:#35292b;--w2:#2f2826}}
+:root[data-theme="dark"]{--bg:#1d1918;--card:#2a2423;--ink:#f1e9e5;--mute:#a69a94;--line:#3c3432;--pink:#d98a95;--green:#7cc593;--box:#241f1e;--w1:#35292b;--w2:#2f2826}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;padding:14px;max-width:900px;margin-inline:auto}
+h1{font-size:20px;margin:6px 0 12px}h2{font-size:15px;margin:0 0 8px}
+.bar{display:flex;gap:8px;margin-bottom:12px}
+select,button,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+button{cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px}
+.hero{display:flex;align-items:center;gap:14px}
+.ring{position:relative;flex:none;width:110px;height:110px}
+.ring svg{width:110px;height:110px}.face{position:absolute;inset:0;display:grid;place-items:center;font-size:34px}
+.big{font-size:28px;font-weight:700}.mute{color:var(--mute);font-size:13px}
+.scroll{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+th,td{padding:3px;text-align:center;font-size:12px;color:var(--mute);font-weight:400}
+.w1{background:var(--w1)}.w2{background:var(--w2)}
+td.name,th.name{position:sticky;right:0;background:var(--card);text-align:right;min-width:130px;max-width:150px;color:var(--ink);font-size:13px;padding:6px;z-index:1;border-left:1px solid var(--line)}
+.cb{width:24px;height:24px;border:2px solid var(--green);border-radius:6px;background:var(--box);display:block;margin:auto;padding:0}
+.cb.on{background:var(--green)}.cb.on::after{content:"✓";color:#fff;font-size:15px;line-height:20px;display:block}
+.cb.today{outline:2px solid var(--pink);outline-offset:1px}
+.x{border:0;background:none;color:var(--mute);padding:0 4px;font-size:14px}
+.mood{border:0;background:none;font-size:20px;padding:0;width:28px;height:28px}
+.sl{width:40px;padding:4px 2px;text-align:center;font-size:12px}
+.tr{height:10px;background:var(--line);border-radius:6px;overflow:hidden;min-width:70px}.tf{height:100%;background:var(--pink)}
+.st td,.st th{font-size:13px;padding:7px 6px;color:var(--ink);text-align:center}.st th{color:var(--mute)}
+.st td:first-child,.st th:first-child{text-align:right}
+.gi{width:50px;padding:4px;text-align:center}
+.add{display:flex;gap:8px;margin-top:10px}.add input{flex:1;min-width:0}.add #ne{flex:none;width:52px;text-align:center}
+.avg{display:flex;gap:18px;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>پلنر عادت‌ها</h1>
+<div class="bar"><select id="mo"></select><select id="yr"></select><button id="th" title="تم">◐</button></div>
+
+<div class="card hero">
+<div class="ring"><svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--line)" stroke-width="5"/><circle id="ring" cx="21" cy="21" r="15.9" fill="none" stroke="var(--pink)" stroke-width="5" stroke-dasharray="0 100" transform="rotate(-90 21 21)" stroke-linecap="round"/></svg><div class="face" id="face"></div></div>
+<div><div class="mute">پیشرفت این ماه</div><div class="big" id="pct"></div><div class="mute" id="cnt"></div><div class="mute" id="todo"></div></div>
+</div>
+
+<div class="card"><h2>نمودار پیشرفت روزانه</h2><svg id="chart" viewBox="0 0 300 110" style="width:100%;height:auto"></svg></div>
+
+<div class="card scroll"><h2>عادت‌های روزانه</h2><table id="grid"></table>
+<div class="add"><input id="ne" placeholder="😀" maxlength="4"><input id="nh" placeholder="عادت جدید"><button id="ab">افزودن</button></div></div>
+
+<div class="card scroll"><h2>وضعیت خواب و حال روحی</h2><table id="ms"></table><div class="avg"><span class="mute" id="as"></span><span class="mute" id="am"></span></div></div>
+
+<div class="card scroll"><h2>پیشرفت هر کار</h2><table class="st" id="stats"></table></div>
+
+<script>
+const MN=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const WD=["ی","د","س","چ","پ","ج","ش"],MO=["","😫","😕","😐","🙂","😍"];
+const DEF=[["⏰","بیدار شدن ۷ صبح"],["🧘","مدیتیشن"],["📖","۱ ساعت کتاب خواندن"],["🧴","روتین پوستی"],["💊","خوردن مکمل"],["🙏","شکرگزاری"],["🚶","پیاده‌روی سبک"],["🎯","کار عمیق"]].map(a=>({e:a[0],n:a[1],g:null}));
+const fa=n=>String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
+const esc=s=>String(s).replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+const PF=new Intl.DateTimeFormat("en-u-ca-persian",{year:"numeric",month:"numeric",day:"numeric"});
+function jp(dt){try{const p=PF.formatToParts(dt);const g=t=>+p.find(x=>x.type==t).value;return{y:g("year"),m:g("month")-1,d:g("day")}}catch(e){return null}}
+const T=jp(new Date())||{y:1405,m:0,d:1};
+let S={habits:DEF,data:{},mood:{},sleep:{}};
+try{const s=JSON.parse(localStorage.getItem("habit-planner"));if(s)S=Object.assign(S,s)}catch(e){}
+S.habits=S.habits.map(h=>typeof h=="string"?{e:"",n:h,g:null}:h);
+let Y=T.y,M=T.m,FD=0;
+const $=id=>document.getElementById(id);
+const save=()=>{try{localStorage.setItem("habit-planner",JSON.stringify(S))}catch(e){}};
+const dim=()=>M<6?31:M<11?30:(([1,5,9,13,17,22,26,30].includes(Y%33))?30:29);
+const key=()=>Y+"-"+M;
+function calcFD(){const b=new Date();b.setHours(12,0,0,0);for(let o=-520;o<=520;o++){const dt=new Date(b.getTime()+o*864e5),p=jp(dt);if(p&&p.y==Y&&p.m==M&&p.d==1){FD=dt.getDay();return}}FD=0}
+const get=(h,d)=>!!(S.data[key()]&&S.data[key()][h]&&S.data[key()][h][d]);
+function tog(h,d){const k=key();S.data[k]=S.data[k]||{};S.data[k][h]=S.data[k][h]||{};S.data[k][h][d]=!S.data[k][h][d];save();render()}
+function streaks(h,n){const cur=Y==T.y&&M==T.m;let end=cur?T.d:n;if(!get(h,end))end--;let c=0;for(let d=end;d>=1&&get(h,d);d--)c++;let b=0,r=0;for(let d=1;d<=n;d++){r=get(h,d)?r+1:0;b=Math.max(b,r)}return[c,b]}
+const wk=d=>Math.floor((d-1+(FD+1)%7)/7);
+function render(){
+const n=dim(),H=S.habits,k=key();let tot=0;
+let w="<tr><th class='name'></th>",c=1;
+while(c<=n){const i=wk(c);let e=c;while(e<n&&wk(e+1)==i)e++;w+="<th class='w"+(i%2+1)+"' colspan='"+(e-c+1)+"'>هفته "+fa(i+1)+"</th>";c=e+1}
+let g=w+"</tr><tr><th class='name'>عادت‌ها</th>";
+for(let d=1;d<=n;d++)g+="<th class='w"+(wk(d)%2+1)+"'>"+WD[(FD+d-1)%7]+"<br>"+fa(d)+"</th>";g+="</tr>";
+const daily=new Array(n+1).fill(0);
+H.forEach((h,i)=>{g+="<tr><td class='name'><button class='x' data-del='"+i+"'>✕</button>"+esc(h.e)+" "+esc(h.n)+"</td>";
+for(let d=1;d<=n;d++){const on=get(i,d);if(on){tot++;daily[d]++}g+="<td class='w"+(wk(d)%2+1)+"'><button class='cb"+(on?" on":"")+(Y==T.y&&M==T.m&&d==T.d?" today":"")+"' data-h='"+i+"' data-d='"+d+"' aria-label='"+d+"'></button></td>"}g+="</tr>"});
+$("grid").innerHTML=g;
+const all=H.length*n,p=all?tot/all*100:0;
+$("ring").setAttribute("stroke-dasharray",p.toFixed(1)+" "+(100-p).toFixed(1));
+$("face").textContent=p<25?"😢":p<50?"😐":p<75?"🙂":"🤩";
+$("pct").textContent=fa(Math.round(p))+"٪";
+$("cnt").textContent="انجام‌شده: "+fa(tot)+" از "+fa(all)+" ("+fa(p.toFixed(1))+"٪)";
+$("todo").textContent="مانده: "+fa((100-p).toFixed(1))+"٪";
+const X=d=>n>1?290-(d-1)/(n-1)*280:150,Yy=v=>95-(H.length?v/H.length:0)*80;
+let pts=[];for(let d=1;d<=n;d++)pts.push(X(d).toFixed(1)+","+Yy(daily[d]).toFixed(1));
+$("chart").innerHTML="<line x1='10' x2='290' y1='95' y2='95' stroke='var(--line)'/><polygon points='"+X(n).toFixed(1)+",95 "+pts.join(" ")+" "+X(1).toFixed(1)+",95' fill='var(--pink)' opacity='.3'/><polyline points='"+pts.join(" ")+"' fill='none' stroke='var(--pink)' stroke-width='2' stroke-linejoin='round'/>"+pts.map(q=>"<circle cx='"+q.split(",")[0]+"' cy='"+q.split(",")[1]+"' r='2' fill='var(--pink)'/>").join("")+"<text x='10' y='108' font-size='8' fill='var(--mute)'>"+fa(n)+"</text><text x='284' y='108' font-size='8' fill='var(--mute)'>۱</text>";
+const mo=S.mood[k]||{},sl=S.sleep[k]||{};
+let m="<tr><th class='name'>روز</th>",a="<tr><td class='name'>حال روحی</td>",b="<tr><td class='name'>خواب (ساعت)</td>";
+let sm=0,sc=0,mm=0,mc=0;
+for(let d=1;d<=n;d++){m+="<th>"+fa(d)+"</th>";a+="<td><button class='mood' data-md='"+d+"'>"+(MO[mo[d]||0]||"·")+"</button></td>";b+="<td><input class='sl' type='number' step='0.5' min='0' max='24' data-sd='"+d+"' value='"+(sl[d]??"")+"'></td>";
+if(sl[d]){sm+=+sl[d];sc++}if(mo[d]){mm+=mo[d];mc++}}
+$("ms").innerHTML=m+"</tr>"+a+"</tr>"+b+"</tr>";
+$("as").textContent="میانگین خواب: "+(sc?fa((sm/sc).toFixed(1))+" ساعت":"—");
+$("am").textContent="میانگین حال: "+(mc?MO[Math.round(mm/mc)]:"—");
+let s="<tr><th>کار</th><th>انجام‌شده</th><th>پیشرفت</th><th>تداوم فعلی</th><th>بیشترین</th><th>هدف</th></tr>";
+H.forEach((h,i)=>{let q=0;for(let d=1;d<=n;d++)if(get(i,d))q++;const[x,y]=streaks(i,n),goal=h.g||n,pr=Math.min(100,q/goal*100);
+s+="<tr><td>"+esc(h.e)+" "+esc(h.n)+"</td><td>"+fa(q)+"/"+fa(goal)+"</td><td><div class='tr'><div class='tf' style='width:"+pr+"%'></div></div></td><td>"+fa(x)+"</td><td>"+fa(y)+"</td><td><input class='gi' type='number' min='1' max='"+n+"' data-g='"+i+"' value='"+goal+"'></td></tr>"});
+$("stats").innerHTML=s}
+function setYM(){calcFD();render()}
+$("mo").innerHTML=MN.map((x,i)=>"<option value='"+i+"'>"+x+"</option>").join("");
+$("yr").innerHTML=[T.y-1,T.y,T.y+1].map(y=>"<option value='"+y+"'>"+fa(y)+"</option>").join("");
+$("mo").value=M;$("yr").value=Y;
+$("mo").onchange=e=>{M=+e.target.value;setYM()};
+$("yr").onchange=e=>{Y=+e.target.value;setYM()};
+$("grid").onclick=e=>{const t=e.target;if(t.dataset.h!==undefined)tog(+t.dataset.h,+t.dataset.d);else if(t.dataset.del!==undefined&&confirm("این عادت حذف شود؟")){const j=+t.dataset.del;S.habits.splice(j,1);for(const kk in S.data){const o={},old=S.data[kk];Object.keys(old).forEach(q=>{q=+q;if(q<j)o[q]=old[q];else if(q>j)o[q-1]=old[q]});S.data[kk]=o}save();render()}};
+$("ms").onclick=e=>{const d=e.target.dataset.md;if(!d)return;const k=key();S.mood[k]=S.mood[k]||{};S.mood[k][d]=((S.mood[k][d]||0)+1)%6;save();render()};
+$("ms").onchange=e=>{const d=e.target.dataset.sd;if(!d)return;const k=key();S.sleep[k]=S.sleep[k]||{};S.sleep[k][d]=e.target.value;save();render()};
+$("stats").onchange=e=>{const i=e.target.dataset.g;if(i===undefined)return;S.habits[i].g=Math.max(1,Math.min(dim(),+e.target.value||dim()));save();render()};
+$("ab").onclick=()=>{const v=$("nh").value.trim();if(v){S.habits.push({e:$("ne").value.trim(),n:v,g:null});$("nh").value="";$("ne").value="";save();render()}};
+$("th").onclick=()=>{const r=document.documentElement;r.dataset.theme=getComputedStyle(r).getPropertyValue("--bg").trim()=="#1d1918"?"light":"dark"};
+setYM();
+</script>
+</body>
+</html>
